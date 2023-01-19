@@ -1,0 +1,192 @@
+{% extends 'quiz/base.html'%}
+{%load static%}
+{%block content%}
+
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <link rel="stylesheet" href="{% static 'css/news.css' %}">
+    <script  src="{% static '/js/state.js'%}"></script>
+    <style>
+
+    body{
+        color:#fff;
+    }
+    #tweet {
+      width: 400px !important;
+    }
+  
+    #tweet iframe {
+      border: none !important;
+      box-shadow: none !important;
+    }
+    .space{
+      margin: 2vw 0vw 0vw 2vw;
+    }
+    .options{
+       margin-left: 6.5em  !important;
+    }
+    .topmar{
+      margin-top:3em !important;
+    }
+    </style>
+   
+    <body>
+    <p id="name" class="justify-content-center"></p>
+    <form id="myform" action ="{%url 'getcount'%}" method="POST">
+                        {%csrf_token%}
+                        <div class="row " id="options">  <br>                 
+                        <div id="selection" class="select options col-md-4" data-placement="top" title="Select any state to view its cases">
+                            <select   id="listBox" onchange='submitState();' name = 'state' selected = "'{{state}}'"></select>
+                        </div>
+                        <div id ="secondsel"class ="select districtlist options col-md-4 " data-placement="top" title="Select any district to view its cases">
+                    <select id='secondlist' name ='district' onchange='submitDistrict();'></select>
+                    </div>
+                    </div>
+                </form>
+        <br>
+        <br>
+      
+            
+           
+                <h3 class="doc-title doc-first">Services</h3>
+                <br>
+                <div class="bg-c-b pt-2">
+                 <p >
+               <center><h4> Here's the complete list of services and activities to be allowed operation in Unlock 1.0: </h4></center>
+               <br>
+               <ol class="list-group list-group-flush">
+                {% for service in allowed_services %}
+                    <li class="list-group-item list-group-item-dark1" id="service{{service}}">○ {{ service }}</li>
+                    {% endfor %}
+              </ol>
+              </p>
+              </div>
+        
+       
+            
+       
+        </ol>
+
+       <br>
+        <br>
+      
+            
+           
+                <h3 class="doc-title doc-first">Today's News</h3>
+                <br>
+            <div class="row">
+            {% for news in data %}
+            <div class="col-sm-4 col-md-4 col-sm-6">
+                <figure class="snip1527">
+                    <div class="image"><img src="{{news.image}}" alt="pr-sample23" /></div>
+                    <figcaption>
+                     
+                      
+                      <p>
+                        {{news.title}}
+                      </p>
+                    </figcaption>
+                    <a href="{{news.link}}"></a>
+                  </figure>
+
+            </div>
+            {% endfor %}
+            </div>
+            <br>
+        <br>
+      
+            
+           
+                <h3 class="doc-title doc-first">Tweets</h3>
+                <br>
+          
+            <div class='row'>
+                {%for tweet_id in id%}
+                  <div>
+                    <div id="twtid{{tweet_id}}" tweetID="{{tweet_id}}"></div>
+                  </div>
+                {%endfor%}
+            </div>
+  <script sync src="https://platform.twitter.com/widgets.js"></script>
+  
+  <script>
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+$('#selection').removeClass('options');
+$('#secondsel').removeClass('options');
+$('#secondsel').addClass('topmar');
+}
+ function submitState () {
+        
+      $("#myform").submit()
+
+    };
+    function submitDistrict () {
+        $("#listBox").val(statename).change();
+        
+      $("#myform").submit()
+
+    };
+    let statename = "{{state}}";
+    let districtname ='{{district}}';
+    if(statename !=''){
+    selct_district(statename);
+    }
+    else{
+      $('.districtlist').hide()
+    }
+    if(districtname == 'SELECT DISTRICT' || districtname == 'None'){
+      districtname = ''
+    }
+    name = statename + ' ' + districtname;
+    $('#name').html(name)
+    function EmTweet(tweet,id){
+    
+      
+     
+      twttr.widgets.createTweet(
+        id, tweet,
+        {
+          conversation : 'none',    // or all
+          cards        : 'hidden',  // or visible
+          linkColor    : '#cc0000', // default is blue
+          theme        : 'dark'    // or dark
+          
+        }).then (function (el) {
+        $(tweet).addClass('space');
+        
+        });
+      
+     
+       
+      
+    };
+    $("[id^=service]").hide();
+    $(document).ready(function () {
+            var divs = $("[id^=service]");
+            var i = 0;
+            var loop = window.setInterval(function () {
+                i++;
+                $(divs[i]).fadeIn(500);
+                $(divs[i]).animate({margin : "0 0 0 10px"});
+               $(divs[i]).animate({margin : "0 0 0 0"});
+                if (i == divs.length)
+                    clearInterval(loop);
+            }, 300);
+        });
+        var tweets = $("[id^=twtid]")
+        
+        for (i=0;i<tweets.length;i++){
+          EmTweet(tweets[i],tweets[i].attributes[1].nodeValue)
+          
+        }
+        
+    
+  
+  
+  </script> 
+            
+        
+    </body>
+</html>
+{%endblock%}
